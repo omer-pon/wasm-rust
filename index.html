@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>WASM JSON Sorter</title>
+	</head>
+	<body>
+		<h1>JSON Sorting in the Browser (via WASM)</h1>
+		<input type="file" id="upload" accept=".json" />
+		<ul id="output"></ul>
+
+		<script type="module">
+			import init, { sort_json } from "./pkg/wasm_json_sort.js";
+
+			async function run() {
+				// Initialize the WASM module
+				await init("./pkg/wasm_json_sort_bg.wasm");
+
+				// Handle file upload
+				const fileInput = document.getElementById("upload");
+				const output = document.getElementById("output");
+
+				fileInput.addEventListener("change", async (event) => {
+					const file = event.target.files[0];
+					if (file) {
+						const text = await file.text();
+
+						// Sort the JSON data using the Rust WASM function
+						try {
+							const sortedData = sort_json(text);
+
+							// Parse the sorted JSON data
+							const people = JSON.parse(sortedData);
+
+							// Clear previous output
+							output.innerHTML = "";
+
+							// Create list items for each person
+							people.forEach((person) => {
+								const listItem = document.createElement("li");
+								listItem.innerHTML = `
+									<strong>Name:</strong> ${person.name} <br>
+									<strong>Email:</strong> ${person.email} <br>
+									<strong>Address:</strong> ${person.address} <br>
+									<strong>Phone:</strong> ${person.phone} <br>
+									<strong>Website:</strong> <a href="${person.website}" target="_blank">${person.website}</a>
+									<hr>
+								`;
+								output.appendChild(listItem);
+							});
+						} catch (error) {
+							console.error("Error during WASM execution:", error);
+						}
+					}
+				});
+			}
+
+			run();
+		</script>
+	</body>
+</html>
