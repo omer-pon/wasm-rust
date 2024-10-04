@@ -18,6 +18,9 @@ The WASM JSON Sorter allows you to upload a JSON file and sort it by the name fi
 
 ### Example JSON File Format:
 
+You can use this site to get a file in below format: https://examplefile.com/public/.code/json
+Just download a file and upload it locally.
+
 ```json
 [
 	{
